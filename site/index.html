@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CVE Alert – latest vulnerabilities &amp; email alerts</title>
+  <meta name="description" content="Browse recent CVEs with severity, KEV and EPSS filters, and get verified email alerts.">
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+</head>
+<body>
+<header>
+  <h1>CVE Alert</h1>
+  <p id="meta">Loading…</p>
+</header>
+
+<main>
+  <section id="dashboard">
+    <div id="stats"></div>
+    <div class="filters">
+      <input id="q" type="search" placeholder="Search ID, description, vendor, product…">
+      <select id="sev">
+        <option value="0">All severities</option>
+        <option value="1">Low+</option>
+        <option value="2">Medium+</option>
+        <option value="3">High+</option>
+        <option value="4">Critical only</option>
+      </select>
+      <label><input id="kev" type="checkbox"> Known exploited (KEV)</label>
+      <label>EPSS ≥ <input id="epss" type="number" min="0" max="100" step="1" value="0" style="width:4rem">%</label>
+      <input id="cwe" type="text" placeholder="CWE (e.g. CWE-79)" style="width:9rem">
+      <select id="sort">
+        <option value="published">Newest published</option>
+        <option value="modified">Recently modified</option>
+        <option value="score">Highest CVSS</option>
+        <option value="epss">Highest EPSS</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>CVE</th><th>Severity</th><th>CVSS</th><th>EPSS</th><th>Published</th><th>Description</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="pager"><button id="prev">Prev</button> <span id="page"></span> <button id="next">Next</button></div>
+  </section>
+
+  <aside id="subscribe">
+    <h2>Get email alerts</h2>
+    <p class="muted">A digest is sent when new CVEs match your filters. Your address must be verified by link.</p>
+    <form id="subform">
+      <label>Email <input name="email" type="email" required autocomplete="email" maxlength="254"></label>
+      <label>Minimum severity
+        <select name="minSeverity">
+          <option value="ALL">All</option><option value="LOW">Low+</option><option value="MEDIUM">Medium+</option>
+          <option value="HIGH" selected>High+</option><option value="CRITICAL">Critical only</option>
+        </select>
+      </label>
+      <label class="inline"><input name="kevOnly" type="checkbox"> Only known-exploited (KEV)</label>
+      <label>Min EPSS % <input name="minEpss" type="number" min="0" max="100" value="0"></label>
+      <label>Vendors / products <small>(comma separated, e.g. microsoft, openssl)</small><input name="vendors" type="text"></label>
+      <label>Keywords <small>(comma separated)</small><input name="keywords" type="text"></label>
+      <label>CWE IDs <small>(e.g. CWE-79, CWE-89)</small><input name="cwes" type="text"></label>
+      <div id="ts"></div>
+      <button type="submit">Subscribe</button>
+      <p id="subMsg" role="status"></p>
+    </form>
+  </aside>
+</main>
+
+<footer>
+  <p>Data: NVD (NIST), CISA KEV, FIRST EPSS. Not affiliated with or endorsed by NIST. Severity may lag for newly published CVEs.</p>
+</footer>
+<script src="/app.js" type="module"></script>
+</body>
+</html>

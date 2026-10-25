@@ -1,0 +1,23 @@
+name = "cvealert"
+main = "worker/index.js"
+compatibility_date = "2026-01-01"
+
+# Static dashboard (site/) is served by the same Worker; only /api/* runs Worker code first.
+[assets]
+directory = "./site"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cvealert"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"   # from: npx wrangler d1 create cvealert
+
+[vars]
+SITE_URL = "https://cvealert.example.workers.dev"   # no trailing slash; change to your domain
+MAIL_FROM_EMAIL = "alerts@example.com"              # must be a verified sender at Brevo
+MAIL_FROM_NAME = "CVE Alert"
+TURNSTILE_SITEKEY = "1x00000000000000000000AA"      # test key; replace with real one
+
+# Secrets (set with `npx wrangler secret put NAME`):
+#   BREVO_API_KEY, TURNSTILE_SECRET, UNSUB_SECRET (long random string, same value used in GitHub Actions)
