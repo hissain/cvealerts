@@ -1,4 +1,5 @@
-// Cloudflare Worker: subscribe / verify / unsubscribe API (static site is served by ASSETS).
+// Cloudflare Worker: subscribe / verify / unsubscribe API + admin (static site is served by ASSETS).
+import { handleAdmin } from "./admin.js";
 const SEVERITIES = ["ALL", "LOW", "MEDIUM", "HIGH", "CRITICAL"];
 const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/;
 const VERIFY_TTL = 24 * 3600;
@@ -152,6 +153,8 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     try {
+      if (url.pathname === "/admin" || url.pathname.startsWith("/admin/") || url.pathname === "/admin.js" || url.pathname === "/admin.css" || url.pathname.startsWith("/api/admin/"))
+        return await handleAdmin(request, env, url);
       if (url.pathname === "/api/config" && request.method === "GET") return json({ turnstileSiteKey: env.TURNSTILE_SITEKEY });
       if (url.pathname === "/api/subscribe" && request.method === "POST") return await handleSubscribe(request, env);
       if (url.pathname === "/api/verify" && request.method === "GET") return await handleVerify(url, env);

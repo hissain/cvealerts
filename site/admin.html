@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Admin</title>
+<link rel="stylesheet" href="/admin.css">
+</head>
+<body>
+<main>
+  <section id="login" hidden>
+    <h1>Admin sign-in</h1>
+    <label for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="current-password" maxlength="256">
+    <button id="loginBtn" type="button">Sign in</button>
+    <p id="loginMsg" role="alert"></p>
+  </section>
+
+  <section id="app" hidden>
+    <header>
+      <h1>Subscribers</h1>
+      <button id="logoutBtn" type="button">Sign out</button>
+    </header>
+    <p class="note">Emails are masked. Revealing an address is recorded in the audit log. Sessions end after 30 minutes.</p>
+    <div id="counts" class="counts"></div>
+    <div class="bar">
+      <select id="status" aria-label="Status filter">
+        <option value="">All statuses</option>
+        <option value="active">Active</option>
+        <option value="pending">Pending</option>
+        <option value="unsubscribed">Unsubscribed</option>
+      </select>
+      <input id="q" type="search" placeholder="Search email text" maxlength="100" autocomplete="off">
+      <button id="searchBtn" type="button">Search</button>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>ID</th><th>Email</th><th>Status</th><th>Filters</th><th>Created</th><th>Verified</th><th>Last digest</th><th>Actions</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="bar">
+      <button id="prev" type="button">Previous</button>
+      <span id="pageInfo"></span>
+      <button id="next" type="button">Next</button>
+    </div>
+    <details id="auditBox">
+      <summary>Audit log (last 50)</summary>
+      <div class="scroll"><table><thead><tr><th>Time</th><th>Action</th><th>Subscriber</th><th>Actor (hash)</th></tr></thead><tbody id="audit"></tbody></table></div>
+    </details>
+    <p id="msg" role="status"></p>
+  </section>
+</main>
+<script src="/admin.js"></script>
+</body>
+</html>

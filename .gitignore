@@ -24,6 +24,7 @@ site/data/*
 
 # Logs, caches, build output
 *.log
+*.err
 .cache/
 dist/
 coverage/

@@ -18,3 +18,19 @@ CREATE TABLE IF NOT EXISTS subscribers (
 );
 
 CREATE INDEX IF NOT EXISTS idx_subscribers_status ON subscribers(status);
+
+-- Admin page support. No personal data: IPs are stored only as truncated HMACs, audit rows reference subscriber ids, never emails.
+CREATE TABLE IF NOT EXISTS admin_throttle (
+  key          TEXT PRIMARY KEY,          -- "ip:<hmac>" or "global"
+  fails        INTEGER NOT NULL DEFAULT 0,
+  window_start INTEGER NOT NULL,
+  locked_until INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS admin_audit (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  at            INTEGER NOT NULL,
+  action        TEXT NOT NULL,            -- login_ok | login_fail | logout | reveal | unsubscribe | delete
+  subscriber_id INTEGER,
+  ip_hash       TEXT
+);

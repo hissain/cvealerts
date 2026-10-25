@@ -2,18 +2,18 @@ name = "cvealerts"
 main = "worker/index.js"
 compatibility_date = "2026-01-01"
 
-# Static dashboard (site/) is served by the same Worker; only /api/* runs Worker code first.
+# Static dashboard (site/) is served by the same Worker; only /api/* and the admin page paths run Worker code first.
 workers_dev = true
 preview_urls = false
 
 [assets]
 directory = "./site"
 binding = "ASSETS"
-run_worker_first = ["/api/*"]
+run_worker_first = ["/api/*", "/admin", "/admin/*", "/admin.js", "/admin.css"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "cvealerts"
+database_name = "cvealert"
 database_id = "fbc1e4b3-6bb2-49ef-8736-815099229353"   # from: npx wrangler d1 create cvealert
 
 [vars]
@@ -22,4 +22,5 @@ MAIL_FROM_NAME = "CVE Alert"
 TURNSTILE_SITEKEY = "0x4AAAAAAFlFGwbAYFyG19cf"   # public site key (real); local dev overrides it in .dev.vars
 
 # Secrets (set with `npx wrangler secret put NAME`):
-#   BREVO_API_KEY, TURNSTILE_SECRET, MAIL_FROM_EMAIL (verified Brevo sender; kept secret so the address is not in the public repo), UNSUB_SECRET (long random string, same value used in GitHub Actions)
+#   BREVO_API_KEY, TURNSTILE_SECRET, MAIL_FROM_EMAIL (verified Brevo sender; kept secret so the address is not in the public repo), UNSUB_SECRET (long random string, same value used in GitHub Actions),
+#   ADMIN_PASSWORD (>=16 chars, random) and ADMIN_SESSION_SECRET (>=32 chars, random, different value) for /admin; admin stays disabled (404) until both are set
