@@ -1,7 +1,7 @@
 name: ingest
 on:
   schedule:
-    - cron: "23 */3 * * *"   # every 3h, off the top of the hour (GitHub delays :00 runs under load)
+    - cron: "23 * * * *"   # hourly, off the top of the hour (GitHub delays :00 runs under load and may skip slots, so more attempts keep data fresh)
   workflow_dispatch:
 
 permissions:
