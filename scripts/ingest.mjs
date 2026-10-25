@@ -1,15 +1,15 @@
 // Incremental CVE ingest: NVD 2.0 (delta by lastModified) + CISA KEV + FIRST EPSS -> site/data/cves.json
-// Env: NVD_API_KEY (optional but recommended), RETENTION_DAYS (default 45), BOOTSTRAP_DAYS (default 14)
+// Env: NVD_API_KEY (optional but recommended), RETENTION_DAYS (default 10), BOOTSTRAP_DAYS (default 14)
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
-import { sleep } from "./lib.mjs";
+import { sleep, SEV_RANK } from "./lib.mjs";
 
 const NVD = "https://services.nvd.nist.gov/rest/json/cves/2.0";
 const KEV_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json";
 const EPSS_URL = "https://epss.empiricalsecurity.com/epss_scores-current.csv.gz";
 const DATA = new URL("../site/data/", import.meta.url);
 const KEY = process.env.NVD_API_KEY || "";
-const RETENTION_DAYS = Number(process.env.RETENTION_DAYS || 45);
+const RETENTION_DAYS = Number(process.env.RETENTION_DAYS || 10);
 const BOOTSTRAP_DAYS = Number(process.env.BOOTSTRAP_DAYS || 14);
 const MAX_CVES = 6000;
 const GAP_MS = KEY ? 700 : 6500; // stay under 50/30s with key, 5/30s without
@@ -128,8 +128,10 @@ async function main() {
 
   const keep = [...byId.values()]
     .filter((c) => c.kev || new Date(c.published).getTime() >= cutoff)
-    .sort((a, b) => b.published.localeCompare(a.published))
-    .slice(0, MAX_CVES);
+    // If over the cap, drop the least important first: KEV, then higher severity, then newer.
+    .sort((a, b) => (b.kev - a.kev) || ((SEV_RANK[b.severity] ?? 0) - (SEV_RANK[a.severity] ?? 0)) || b.published.localeCompare(a.published))
+    .slice(0, MAX_CVES)
+    .sort((a, b) => b.published.localeCompare(a.published));
 
   await writeFile(new URL("cves.json", DATA), JSON.stringify({ generated: nowDate.toISOString(), count: keep.length, cves: keep }));
   await writeFile(new URL("state.json", DATA), JSON.stringify({ lastSync: nowDate.toISOString() }));
