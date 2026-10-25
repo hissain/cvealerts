@@ -22,7 +22,13 @@
       <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false"><path class="mark" d="M16 2l11 4v9c0 7-4.6 12.3-11 15C9.6 27.3 5 22 5 15V6z"/><path class="mark-glyph" d="M15 9h2v9h-2zm0 11h2v2h-2z"/></svg>
       <span>CVE Alert</span>
     </a>
-    <a class="btn btn-primary btn-sm" href="#subscribe">Get alerts</a>
+    <div class="actions">
+      <button type="button" class="btn btn-sm btn-support" data-support>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6.1 5c2 0 3.4 1.1 4.2 2.4h3.4C14.5 6.1 15.9 5 17.9 5c3.4 0 5.2 3.4 3.7 6.8C19.5 16.4 12 21 12 21z"/></svg>
+        <span>Support</span>
+      </button>
+      <a class="btn btn-primary btn-sm" href="#subscribe">Get alerts</a>
+    </div>
   </div>
 </header>
 
@@ -144,9 +150,21 @@
 <footer class="foot">
   <div class="wrap">
     <p>Data from NVD (NIST), CISA KEV and FIRST EPSS. Not affiliated with or endorsed by NIST, CISA or FIRST. Severity can lag for newly published CVEs.</p>
-    <p>Open source under the <a href="https://github.com/hissain/cvealerts/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a> &middot; <a href="https://github.com/hissain/cvealerts" target="_blank" rel="noopener noreferrer">Source on GitHub</a></p>
+    <p>Open source under the <a href="https://github.com/hissain/cvealerts/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a> &middot; <a href="https://github.com/hissain/cvealerts" target="_blank" rel="noopener noreferrer">Source on GitHub</a> &middot; <button type="button" class="linkbtn" data-support>Support Infomity on Patreon</button></p>
   </div>
 </footer>
+
+<dialog id="supportDlg" class="dlg" aria-labelledby="sup-h">
+  <div class="dlg-in">
+    <div class="dlg-head">
+      <h2 id="sup-h">Support CVE Alert</h2>
+      <button type="button" class="dlg-x" id="supportClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="qr"><img src="/assets/qr_patreon.png" width="592" height="592" alt="QR code for patreon.com/Infomity" loading="lazy"></div>
+    <p class="muted">CVE Alert is free and open source. Scan the code or use the button to support ongoing development, hosting and updates.</p>
+    <a class="btn btn-primary btn-block" href="https://www.patreon.com/Infomity" target="_blank" rel="noopener noreferrer">Support Infomity on Patreon</a>
+  </div>
+</dialog>
 <script src="/app.js" type="module"></script>
 </body>
 </html>

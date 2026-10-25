@@ -170,3 +170,14 @@ $("subform").addEventListener("submit", async (ev) => {
 
 load();
 initTurnstile();
+// Support (Patreon) dialog
+{
+  const dlg = $("supportDlg");
+  if (dlg && typeof dlg.showModal === "function") {
+    document.querySelectorAll("[data-support]").forEach((b) => b.addEventListener("click", () => dlg.showModal()));
+    $("supportClose").addEventListener("click", () => dlg.close());
+    dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  } else {
+    document.querySelectorAll("[data-support]").forEach((b) => b.addEventListener("click", () => window.open("https://www.patreon.com/Infomity", "_blank", "noopener,noreferrer")));
+  }
+}
