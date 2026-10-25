@@ -3,6 +3,9 @@ main = "worker/index.js"
 compatibility_date = "2026-01-01"
 
 # Static dashboard (site/) is served by the same Worker; only /api/* runs Worker code first.
+workers_dev = true
+preview_urls = false
+
 [assets]
 directory = "./site"
 binding = "ASSETS"
@@ -14,7 +17,7 @@ database_name = "cvealert"
 database_id = "fbc1e4b3-6bb2-49ef-8736-815099229353"   # from: npx wrangler d1 create cvealert
 
 [vars]
-SITE_URL = "https://cvealert.example.workers.dev"   # no trailing slash; change to your domain
+SITE_URL = "https://cvealert.hissain-khan.workers.dev"   # no trailing slash
 MAIL_FROM_NAME = "CVE Alert"
 TURNSTILE_SITEKEY = "0x4AAAAAAFlFGwbAYFyG19cf"   # public site key (real); local dev overrides it in .dev.vars
 
