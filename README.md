@@ -1,44 +1,104 @@
 # CVE Alert
 
-Zero-cost CVE dashboard with verified email alerts. See `RESEARCH.md` for the options analysis.
+A free, open-source site for keeping up with newly published software vulnerabilities (CVEs). Browse recent CVEs in a filterable dashboard, or subscribe to a daily email that only contains the vulnerabilities you care about.
 
-```
-GitHub Actions ──ingest (every 3h)──> NVD + CISA KEV + EPSS ──> site/data/cves.json ──> `data` branch
-                └─deploy──────────────────────────────────────> Cloudflare Worker (static site + /api/*)
-                └─digest (daily)── D1 subscribers ── match ──> Brevo email
-Browser: static dashboard (client-side filtering) + subscribe form (Turnstile) ──> /api/subscribe ──> D1 + verification mail
-```
+**Live site: https://cvealerts.infomity.workers.dev**
 
-## One-time setup
-1. **Repo**: push to a *public* GitHub repo (free Actions minutes). `npm install`.
-2. **Cloudflare**: `npx wrangler login`, then `npx wrangler d1 create cvealert` -> put the `database_id` in `wrangler.toml`.
-   Run `npm run db:init`.
-3. **Turnstile** (free CAPTCHA): create a widget in the Cloudflare dashboard -> set `TURNSTILE_SITEKEY` in `wrangler.toml`, then `npx wrangler secret put TURNSTILE_SECRET`.
-4. **Brevo** (300 emails/day free): create an account, verify your sender domain (SPF/DKIM/DMARC) or at least a sender address,
-   `npx wrangler secret put BREVO_API_KEY`. Set `MAIL_FROM_EMAIL` / `SITE_URL` in `wrangler.toml`.
-5. **Unsubscribe secret**: generate a long random string; `npx wrangler secret put UNSUB_SECRET` and add the same value as a GitHub secret.
-6. **NVD key** (free): https://nvd.nist.gov/developers/request-an-api-key -> GitHub secret `NVD_API_KEY`.
-7. **GitHub secrets**: `NVD_API_KEY`, `CLOUDFLARE_API_TOKEN` (Workers edit + D1 edit), `CLOUDFLARE_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `BREVO_API_KEY`, `UNSUB_SECRET`.
-   **GitHub variables**: `SITE_URL`, `MAIL_FROM_EMAIL`, `MAIL_FROM_NAME`, optional `MAX_EMAILS_PER_RUN` (default 90).
-8. Run the `ingest` workflow manually once (creates the `data` branch and deploys), then `digest` with *dry run* ticked.
+## What you can do
 
-## Local test
+### Browse the dashboard
+- See recently published CVEs with their description, severity, CVSS score and publish date.
+- Filter by severity, by whether the CVE is on the CISA Known Exploited Vulnerabilities (KEV) list, by EPSS exploit-likelihood score, and by keyword.
+- Filtering happens in your browser, so searching is instant and does not send your queries anywhere.
+- The dashboard shows roughly the last 10 days of CVEs. CVEs on the KEV list are kept even if they are older.
+
+### Get email alerts
+1. Open the site and find the subscribe form.
+2. Enter your email address and choose your filters (see below).
+3. Complete the CAPTCHA and submit.
+4. Check your inbox for a message titled "Confirm your CVE Alert subscription" and click the link. If you do not see it, check your spam folder.
+5. Once confirmed, you receive a digest by email containing only CVEs that match your filters and appeared since your last digest.
+
+Alerts are not active until you click the confirmation link. The link is valid for 24 hours; unconfirmed sign-ups are removed.
+
+### Alert filters
+| Filter | What it does |
+| --- | --- |
+| Minimum severity | Only CVEs at or above Low, Medium, High or Critical. The default is High. |
+| Known exploited only | Only CVEs listed in the CISA KEV catalog. |
+| Minimum EPSS | Only CVEs whose exploit-prediction score meets your threshold. |
+| Vendor / product | Only CVEs that affect the vendors or products you list (for example `microsoft`, `apache`). |
+| Keyword | Only CVEs whose description contains your keywords. |
+| CWE | Only CVEs with the weakness types you list (for example `CWE-79`). |
+
+If you set several filters, a CVE must satisfy all of them to be included.
+
+### Unsubscribe
+Every email contains an unsubscribe link, and mail clients that support it also show a one-click unsubscribe option. Unsubscribing takes effect immediately.
+
+## Your data
+- When you subscribe, the service stores your email address, your filter choices, your subscription status and a few timestamps.
+- The confirmation token is random and only a hash of it is stored.
+- Your email address is used only to send the confirmation message and your alerts.
+- Signing up with an address that is already registered shows the same message as any other sign-up, so the form cannot be used to check whether someone is subscribed.
+- To have your data removed, unsubscribe, or open an issue on this repository.
+
+## Data sources
+- [NVD](https://nvd.nist.gov/) (National Vulnerability Database) for CVE records, descriptions and CVSS scores.
+- [CISA KEV](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) for vulnerabilities known to be exploited in the wild.
+- [FIRST EPSS](https://www.first.org/epss/) for exploit-prediction scores.
+
+This project is not affiliated with or endorsed by NIST, CISA or FIRST.
+
+## Limitations
+- This is an early version. Email goes through a free-tier provider using a shared sender address, so messages can land in spam. Marking the first one as "not spam" helps.
+- CVE data is refreshed on a schedule, not in real time, and digests are sent once a day. Scheduled jobs can run late.
+- Severity and scores come from NVD. Newly published CVEs may show as "Unknown" until NVD has analysed them.
+- There is no preferences page yet. To change filters, unsubscribe and subscribe again.
+- CVE Alert is a convenience tool. Do not rely on it as your only source for security monitoring.
+
+## How it works
 ```
-set NVD_API_KEY=...        (optional)
-set BOOTSTRAP_DAYS=2
+GitHub Actions (ingest, every 3 hours)
+    NVD + CISA KEV + EPSS  ->  site/data/cves.json  ->  deployed with the Worker
+GitHub Actions (digest, daily)
+    active subscribers in Cloudflare D1  ->  match filters  ->  email via Brevo
+Browser
+    static dashboard  +  subscribe form (Turnstile CAPTCHA)  ->  /api/subscribe  ->  D1 + confirmation email
+```
+Everything runs on free tiers: Cloudflare Workers, D1 and Turnstile, GitHub Actions, and Brevo. See `RESEARCH.md` for the options analysis and free-tier limits.
+
+## Run your own copy
+You need free accounts at GitHub, Cloudflare and Brevo, plus a free NVD API key.
+
+1. Fork this repository and run `npm install --include=dev`.
+2. Log in with `npx wrangler login`, then `npx wrangler d1 create cvealert` and put the resulting `database_id` in `wrangler.toml`. Run `npm run db:init`.
+3. Create a Turnstile widget in the Cloudflare dashboard. Put the public site key in `wrangler.toml` as `TURNSTILE_SITEKEY`.
+4. Set the Worker secrets (you are prompted for each value, nothing is stored in the repository):
+   ```
+   npx wrangler secret put TURNSTILE_SECRET
+   npx wrangler secret put BREVO_API_KEY
+   npx wrangler secret put UNSUB_SECRET
+   npx wrangler secret put MAIL_FROM_EMAIL
+   ```
+   `UNSUB_SECRET` should be a long random string. `MAIL_FROM_EMAIL` must be a sender verified in Brevo.
+5. Set `SITE_URL` in `wrangler.toml` to the address your Worker is served from (no trailing slash).
+6. Add GitHub Actions secrets: `NVD_API_KEY`, `CLOUDFLARE_API_TOKEN` (Workers and D1 edit), `CLOUDFLARE_ACCOUNT_ID`, `CF_D1_DATABASE_ID`, `BREVO_API_KEY`, and `UNSUB_SECRET` (same value as the Worker's).
+   Add GitHub Actions variables: `SITE_URL`, `MAIL_FROM_EMAIL`, `MAIL_FROM_NAME`, and optionally `MAX_EMAILS_PER_RUN` (default 90).
+7. Run the `ingest` workflow once manually, then run `digest` with the dry-run option ticked.
+
+### Local development
+```
+copy .env.example .env     # fill in your own values; .env is gitignored
 npm run ingest             # writes site/data/cves.json
 npm run db:init:local
-npx wrangler dev           # http://localhost:8787  (create .dev.vars with secrets; Turnstile test keys work locally)
+npx wrangler dev           # needs a .dev.vars file; Turnstile test keys work locally
+npm test
 ```
+Never commit `.env`, `.dev.vars` or any API key. Both files are listed in `.gitignore`.
 
-## Behaviour notes
-- Double opt-in: link token is random, only its SHA-256 is stored, expires in 24h. Signup always returns the same message (no account probing).
-- Digest sends only CVEs first seen *after* the subscriber's last digest / verification time, capped at 40 items per mail.
-- Unsubscribe links are HMAC-signed, plus `List-Unsubscribe` one-click headers.
-- Free-tier guard rails: `MAX_EMAILS_PER_RUN` (Brevo 300/day shared with verification mails), D1 reads are minimal because the dashboard filters static JSON.
-- GitHub disables scheduled workflows after 60 days of repo inactivity; commit occasionally or re-enable manually. Scheduled runs may be late.
+## Contributing
+Issues and pull requests are welcome. Please do not include secrets, real subscriber email addresses or API keys in issues, logs or commits.
 
-## Not done yet (next iterations)
-- "Manage preferences" flow for already-active subscribers (currently re-subscribing an active email is a no-op).
-- Purge of unverified rows older than 48h (simple scheduled D1 delete).
-- Tests, rate limiting beyond Turnstile + resend cooldown, privacy policy page.
+## License
+Released under the [MIT License](LICENSE).
