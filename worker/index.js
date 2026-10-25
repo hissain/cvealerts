@@ -86,8 +86,21 @@ async function handleSubscribe(request, env) {
   // Same generic answer in every case so the form can't be used to probe who is registered.
   const generic = json({ ok: true, message: "If that address can be subscribed, a verification email is on its way. The link expires in 24 hours." });
 
-  if (row && row.status === "active") return generic; // already verified; filter changes need a future "manage" flow
   if (row && row.last_verify_sent && t - row.last_verify_sent < RESEND_COOLDOWN) return generic;
+  if (row && row.status === "active") {
+    // Already verified: filters are left unchanged (a "manage" flow does not exist yet). Tell the owner of the
+    // address by email, with an unsubscribe link, instead of staying silent. Rate-limited by the same cooldown.
+    await env.DB.prepare("UPDATE subscribers SET last_verify_sent=? WHERE id=?").bind(t, row.id).run();
+    const unsub = `${env.SITE_URL}/api/unsubscribe?id=${row.id}&t=${await hmac(env.UNSUB_SECRET, `unsub:${row.id}`)}`;
+    try {
+      await sendMail(env, email, "You're already subscribed to CVE Alert",
+        `<p>This address is already subscribed to CVE alerts, so no new confirmation is needed. Your existing filters are unchanged.</p><p>To stop receiving alerts, or to subscribe again with different filters, <a href="${unsub}">unsubscribe here</a> and then sign up again on the site.</p><p>If you didn't request this, ignore this message.</p>`,
+        `This address is already subscribed to CVE alerts, so no new confirmation is needed. Your existing filters are unchanged.\nTo stop receiving alerts, or to subscribe again with different filters, unsubscribe here and then sign up again: ${unsub}\nIf you didn't request this, ignore this message.`);
+    } catch (e) {
+      console.error("already-subscribed mail failed", e.message);
+    }
+    return generic;
+  }
 
   const token = hex(crypto.getRandomValues(new Uint8Array(32)));
   const vh = await sha256(token);
