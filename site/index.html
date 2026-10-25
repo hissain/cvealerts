@@ -1,75 +1,151 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>CVE Alert – latest vulnerabilities &amp; email alerts</title>
-  <meta name="description" content="Browse recent CVEs with severity, KEV and EPSS filters, and get verified email alerts.">
-  <link rel="stylesheet" href="/style.css">
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CVE Alert - new vulnerabilities and email alerts</title>
+<meta name="description" content="Browse newly published CVEs filtered by severity, known exploitation and keyword, and get a daily email with only the vulnerabilities that match.">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111a2b" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="CVE Alert">
+<meta property="og:description" content="Newly published CVEs, filtered to what you run, with verified email alerts.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%2312263f' d='M16 2l11 4v9c0 7-4.6 12.3-11 15C9.6 27.3 5 22 5 15V6z'/%3E%3Cpath fill='%23fff' d='M15 9h2v9h-2zm0 11h2v2h-2z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/style.css">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 </head>
 <body>
-<header>
-  <h1>CVE Alert</h1>
-  <p id="meta">Loading…</p>
+<a class="skip" href="#feed">Skip to CVE list</a>
+
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="/" aria-label="CVE Alert home">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true" focusable="false"><path class="mark" d="M16 2l11 4v9c0 7-4.6 12.3-11 15C9.6 27.3 5 22 5 15V6z"/><path class="mark-glyph" d="M15 9h2v9h-2zm0 11h2v2h-2z"/></svg>
+      <span>CVE Alert</span>
+    </a>
+    <a class="btn btn-primary btn-sm" href="#subscribe">Get alerts</a>
+  </div>
 </header>
 
-<main>
-  <section id="dashboard">
-    <div id="stats"></div>
-    <div class="filters">
-      <input id="q" type="search" placeholder="Search ID, description, vendor, product…">
-      <select id="sev">
-        <option value="0">All severities</option>
-        <option value="1">Low+</option>
-        <option value="2">Medium+</option>
-        <option value="3">High+</option>
-        <option value="4">Critical only</option>
-      </select>
-      <label><input id="kev" type="checkbox"> Known exploited (KEV)</label>
-      <label>EPSS ≥ <input id="epss" type="number" min="0" max="100" step="1" value="0" style="width:4rem">%</label>
-      <input id="cwe" type="text" placeholder="CWE (e.g. CWE-79)" style="width:9rem">
-      <select id="sort">
-        <option value="published">Newest published</option>
-        <option value="modified">Recently modified</option>
-        <option value="score">Highest CVSS</option>
-        <option value="epss">Highest EPSS</option>
-      </select>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>CVE</th><th>Severity</th><th>CVSS</th><th>EPSS</th><th>Published</th><th>Description</th></tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
-    </div>
-    <div class="pager"><button id="prev">Prev</button> <span id="page"></span> <button id="next">Next</button></div>
+<main class="wrap">
+  <div class="intro">
+    <h1>Newly published CVEs</h1>
+    <p class="lede">Filter by severity, known exploitation and keyword, or get a daily email with only the vulnerabilities that match.</p>
+    <p id="meta" class="meta" role="status">Loading CVE data</p>
+  </div>
+
+  <section class="overview" aria-label="Severity overview">
+    <div id="sevbar" class="sevbar" role="img" aria-label="Severity distribution"></div>
+    <ul id="stats" class="legend"></ul>
   </section>
 
-  <aside id="subscribe">
-    <h2>Get email alerts</h2>
-    <p class="muted">A digest is sent when new CVEs match your filters. Your address must be verified by link.</p>
-    <form id="subform">
-      <label>Email <input name="email" type="email" required autocomplete="email" maxlength="254"></label>
-      <label>Minimum severity
-        <select name="minSeverity">
-          <option value="ALL">All</option><option value="LOW">Low+</option><option value="MEDIUM">Medium+</option>
-          <option value="HIGH" selected>High+</option><option value="CRITICAL">Critical only</option>
-        </select>
-      </label>
-      <label class="inline"><input name="kevOnly" type="checkbox"> Only known-exploited (KEV)</label>
-      <label>Min EPSS % <input name="minEpss" type="number" min="0" max="100" value="0"></label>
-      <label>Vendors / products <small>(comma separated, e.g. microsoft, openssl)</small><input name="vendors" type="text"></label>
-      <label>Keywords <small>(comma separated)</small><input name="keywords" type="text"></label>
-      <label>CWE IDs <small>(e.g. CWE-79, CWE-89)</small><input name="cwes" type="text"></label>
-      <div id="ts"></div>
-      <button type="submit">Subscribe</button>
-      <p id="subMsg" role="status"></p>
-    </form>
-  </aside>
+  <div class="layout">
+    <section id="feed" aria-labelledby="feed-h">
+      <h2 id="feed-h" class="sr">CVE list</h2>
+
+      <div class="filters" role="search">
+        <div class="search">
+          <label class="sr" for="q">Search CVEs</label>
+          <input id="q" type="search" placeholder="Search CVE ID, product, vendor or keyword" autocomplete="off" enterkeyhint="search">
+        </div>
+
+        <fieldset class="seg" id="sev">
+          <legend class="sr">Minimum severity</legend>
+          <label><input type="radio" name="sev" value="0" checked><span>All</span></label>
+          <label><input type="radio" name="sev" value="1"><span>Low+</span></label>
+          <label><input type="radio" name="sev" value="2"><span>Medium+</span></label>
+          <label><input type="radio" name="sev" value="3"><span>High+</span></label>
+          <label><input type="radio" name="sev" value="4"><span>Critical</span></label>
+        </fieldset>
+
+        <div class="row2">
+          <label class="chip"><input id="kev" type="checkbox"><span>Known exploited</span></label>
+          <label class="field inline-field">Sort
+            <select id="sort">
+              <option value="published">Newest published</option>
+              <option value="modified">Recently modified</option>
+              <option value="score">Highest CVSS</option>
+              <option value="epss">Highest EPSS</option>
+            </select>
+          </label>
+        </div>
+
+        <details class="more">
+          <summary>More filters</summary>
+          <div class="grid2">
+            <label class="field">Minimum EPSS (%)
+              <input id="epss" type="number" min="0" max="100" step="1" value="0" inputmode="numeric">
+            </label>
+            <label class="field">CWE
+              <input id="cwe" type="text" placeholder="CWE-79" autocomplete="off" autocapitalize="characters">
+            </label>
+          </div>
+        </details>
+      </div>
+
+      <div class="resultbar">
+        <p id="count" aria-live="polite"></p>
+        <button id="reset" class="btn btn-quiet btn-sm" type="button" hidden>Clear filters</button>
+      </div>
+
+      <ul id="rows" class="cves"></ul>
+
+      <nav class="pager" aria-label="Pagination">
+        <button id="prev" class="btn" type="button">Previous</button>
+        <span id="page"></span>
+        <button id="next" class="btn" type="button">Next</button>
+      </nav>
+    </section>
+
+    <aside id="subscribe" class="panel" aria-labelledby="sub-h">
+      <h2 id="sub-h">Get email alerts</h2>
+      <p class="muted">One digest a day with only the CVEs that match your filters. You confirm your address first.</p>
+      <form id="subform">
+        <label class="field">Email
+          <input name="email" type="email" required autocomplete="email" inputmode="email" maxlength="254" placeholder="you@example.com">
+        </label>
+        <label class="field">Minimum severity
+          <select name="minSeverity">
+            <option value="ALL">All</option><option value="LOW">Low+</option><option value="MEDIUM">Medium+</option>
+            <option value="HIGH" selected>High+</option><option value="CRITICAL">Critical only</option>
+          </select>
+        </label>
+        <label class="check"><input name="kevOnly" type="checkbox"><span>Only known-exploited CVEs</span></label>
+
+        <details class="more">
+          <summary>Narrow by product, keyword or CWE</summary>
+          <label class="field">Vendors or products
+            <small>Comma separated, for example microsoft, openssl</small>
+            <input name="vendors" type="text" autocomplete="off">
+          </label>
+          <label class="field">Keywords
+            <small>Comma separated</small>
+            <input name="keywords" type="text" autocomplete="off">
+          </label>
+          <label class="field">CWE IDs
+            <small>For example CWE-79, CWE-89</small>
+            <input name="cwes" type="text" autocomplete="off" autocapitalize="characters">
+          </label>
+          <label class="field">Minimum EPSS (%)
+            <input name="minEpss" type="number" min="0" max="100" value="0" inputmode="numeric">
+          </label>
+        </details>
+
+        <div id="ts" class="ts"></div>
+        <button type="submit" id="subbtn" class="btn btn-primary btn-block">Subscribe</button>
+        <p id="subMsg" class="msg" role="status"></p>
+        <p class="fine">Your email is used only to send alerts. Every message includes an unsubscribe link.</p>
+      </form>
+    </aside>
+  </div>
 </main>
 
-<footer>
-  <p>Data: NVD (NIST), CISA KEV, FIRST EPSS. Not affiliated with or endorsed by NIST. Severity may lag for newly published CVEs.</p>
+<a id="fab" class="btn btn-primary fab" href="#subscribe">Get alerts</a>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Data from NVD (NIST), CISA KEV and FIRST EPSS. Not affiliated with or endorsed by NIST, CISA or FIRST. Severity can lag for newly published CVEs.</p>
+    <p>Open source under the <a href="https://github.com/hissain/cvealerts/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a> &middot; <a href="https://github.com/hissain/cvealerts" target="_blank" rel="noopener noreferrer">Source on GitHub</a></p>
+  </div>
 </footer>
 <script src="/app.js" type="module"></script>
 </body>
