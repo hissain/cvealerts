@@ -1,12 +1,13 @@
-{
+﻿{
   "name": "cvealert",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "engines": { "node": ">=20" },
   "scripts": {
-    "ingest": "node scripts/ingest.mjs",
-    "digest": "node scripts/digest.mjs",
+    "ingest": "node --env-file-if-exists=.env scripts/ingest.mjs",
+    "digest": "node --env-file-if-exists=.env scripts/digest.mjs",
+    "test": "node --test",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:init": "wrangler d1 execute cvealert --remote --file=schema.sql",

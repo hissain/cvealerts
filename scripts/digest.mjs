@@ -51,6 +51,8 @@ async function send(to, subject, html, text, unsubUrl) {
 }
 
 const store = JSON.parse(await readFile(new URL("../site/data/cves.json", import.meta.url), "utf8"));
+// Purge never-verified signups older than 48h (privacy: don't retain unconfirmed emails)
+if (!DRY) await d1("DELETE FROM subscribers WHERE status = 'pending' AND COALESCE(last_verify_sent, created_at) < ?", [Math.floor(Date.now() / 1000) - 48 * 3600]);
 const subs = await d1("SELECT * FROM subscribers WHERE status = 'active' ORDER BY COALESCE(last_digest_at, 0) ASC");
 console.log(`${subs.length} active subscribers, ${store.cves.length} CVEs in store`);
 
