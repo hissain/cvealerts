@@ -15,9 +15,8 @@ database_id = "fbc1e4b3-6bb2-49ef-8736-815099229353"   # from: npx wrangler d1 c
 
 [vars]
 SITE_URL = "https://cvealert.example.workers.dev"   # no trailing slash; change to your domain
-MAIL_FROM_EMAIL = "alerts@example.com"              # must be a verified sender at Brevo
 MAIL_FROM_NAME = "CVE Alert"
 TURNSTILE_SITEKEY = "0x4AAAAAAFlFGwbAYFyG19cf"   # public site key (real); local dev overrides it in .dev.vars
 
 # Secrets (set with `npx wrangler secret put NAME`):
-#   BREVO_API_KEY, TURNSTILE_SECRET, UNSUB_SECRET (long random string, same value used in GitHub Actions)
+#   BREVO_API_KEY, TURNSTILE_SECRET, MAIL_FROM_EMAIL (verified Brevo sender; kept secret so the address is not in the public repo), UNSUB_SECRET (long random string, same value used in GitHub Actions)
