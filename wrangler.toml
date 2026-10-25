@@ -17,7 +17,7 @@ database_name = "cvealerts"
 database_id = "fbc1e4b3-6bb2-49ef-8736-815099229353"   # from: npx wrangler d1 create cvealert
 
 [vars]
-SITE_URL = "https://cvealerts.hissain-khan.workers.dev"   # no trailing slash
+SITE_URL = "https://cvealerts.infomity.workers.dev"   # no trailing slash
 MAIL_FROM_NAME = "CVE Alert"
 TURNSTILE_SITEKEY = "0x4AAAAAAFlFGwbAYFyG19cf"   # public site key (real); local dev overrides it in .dev.vars
 
