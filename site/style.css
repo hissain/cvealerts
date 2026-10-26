@@ -194,8 +194,8 @@ h1 { font-size: clamp(1.65rem, 1.15rem + 2.2vw, 2.4rem); font-weight: 780; lette
 @media (max-width: 900px) { .fab { display: inline-flex; } }
 
 /* Footer */
-.foot { border-top: 1px solid var(--line); background: var(--surface); padding: 22px 0 calc(28px + env(safe-area-inset-bottom)); font-size: .85rem; color: var(--muted); }
-.foot p { margin: 0 0 6px; max-width: 80ch; }
+.foot { border-top: 1px solid var(--line); background: var(--surface); padding: 22px 0 calc(28px + env(safe-area-inset-bottom)); font-size: .85rem; color: var(--muted); text-align: center; }
+.foot p { margin: 0 auto 6px; max-width: 80ch; }
 @media (max-width: 900px) { .foot { padding-bottom: calc(84px + env(safe-area-inset-bottom)); } }
 /* Support (Patreon) */
 .actions { display: flex; align-items: center; gap: 8px; }
