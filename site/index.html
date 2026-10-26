@@ -11,6 +11,7 @@
 <meta property="og:description" content="Newly published CVEs, filtered to what you run, with verified email alerts.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%232563eb' d='M16 2l11 4v9c0 7-4.6 12.3-11 15C9.6 27.3 5 22 5 15V6z'/%3E%3Cpath fill='%23fff' d='M15 9h2v9h-2zm0 11h2v2h-2z'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="/style.css">
+<script src="/theme.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 </head>
 <body>
@@ -23,7 +24,11 @@
       <span>CVE Alert</span>
     </a>
     <div class="actions">
-      <button type="button" class="btn btn-sm btn-support" data-support>
+      <button type="button" id="themeBtn" class="btn btn-sm btn-icon" aria-label="Switch to dark theme" title="Switch to dark theme">
+        <svg class="ic-moon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21 14.5A9 9 0 0 1 9.5 3a9 9 0 1 0 11.5 11.5z"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3L7 7M17 17l1.7 1.7M5.3 18.7L7 17M17 7l1.7-1.7"/></svg>
+      </button>
+      <button type="button" class="btn btn-sm btn-support" data-support aria-label="Support Infomity on Patreon">
         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6.1 5c2 0 3.4 1.1 4.2 2.4h3.4C14.5 6.1 15.9 5 17.9 5c3.4 0 5.2 3.4 3.7 6.8C19.5 16.4 12 21 12 21z"/></svg>
         <span>Support</span>
       </button>

@@ -84,7 +84,7 @@ function item(c) {
         <span class="when">Published ${esc(c.published.slice(0, 10))}</span>
       </div>
       <details class="more-desc">
-        <summary><span class="snip">${esc(snippet)}</span><span class="sr">Show details</span></summary>
+        <summary><span class="snip">${esc(snippet)}</span><span class="sr">Show details</span><span class="hide">Hide details</span></summary>
         <p class="full">${esc(c.desc)}</p>
         ${facts ? `<p class="facts">${facts}</p>` : ""}
         ${refs ? `<div class="refs">${refs}</div>` : ""}
