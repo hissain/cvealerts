@@ -41,7 +41,19 @@ jobs:
           git rm -rf --cached . -q
           git add -f site/data
           git commit -qm "data $(date -u +%FT%TZ)"
-          git push -f origin data-tmp:data
+          pushed=0
+          for attempt in 1 2 3 4; do
+            if git push -f origin data-tmp:data; then
+              pushed=1
+              break
+            fi
+            echo "Push failed (attempt $attempt/4). Retrying in $((attempt * 5))s..."
+            sleep $((attempt * 5))
+          done
+          if [ "$pushed" -ne 1 ]; then
+            echo "Failed to push to data branch after multiple attempts"
+            exit 1
+          fi
 
       - name: Deploy site + API to Cloudflare
         env:
